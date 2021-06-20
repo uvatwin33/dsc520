@@ -1,6 +1,6 @@
 # Assignment: ASSIGNMENT 0
-# Name: Lastname, Firstname
-# Date: 2010-02-14
+# Name: Han, Phil
+# Date: 2021-06-19
 
 # Basics
 
@@ -17,7 +17,7 @@
 (4+6)/2
 
 ## Compute 5 modulo 2
-___
+5 %% 2
 
 ## Assign the value 82 to the variable x
 ## Print x
