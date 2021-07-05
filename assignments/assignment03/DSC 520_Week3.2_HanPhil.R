@@ -8,7 +8,7 @@ library(ggplot2)
 library(qqplotr)
 theme_set(theme_minimal())
 
-
+setwd("~/Documents/GitHub/dsc520")
 ## Load the `data/asc14.csv` to
 acs14_df <- read.csv("data/acs-14-1yr-s0201.csv")
 acs14_df
