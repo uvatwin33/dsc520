@@ -1,0 +1,156 @@
+---
+title: "ASSIGNMENT 7.2"
+author: "Phil Han"
+date: '2021-07-25'
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+  
+```{r student_survey, include=FALSE}
+#install.packages("xtable")
+#install.packages("Rmisc")
+#install.packages("psychometric")
+#install.packages("ppcor")
+
+library(xtable)
+library(tinytex)
+library(plyr)
+library(Rmisc)
+library(psychometric)
+library(ppcor)
+
+
+setwd("~/Documents/GitHub/dsc520")
+
+## Load the `data/student-survey.csv` to
+stu_survey_df <- read.csv("data/student-survey.csv")
+stu_survey_df
+names(stu_survey_df)
+
+plot(stu_survey_df$TimeTV, stu_survey_df$Happiness)
+plot(stu_survey_df$TimeReading, stu_survey_df$Happiness)
+plot(stu_survey_df$TimeReading, stu_survey_df$ReadingTime)
+
+## calculate the covariance of TV time and Happniness
+cov(stu_survey_df$TimeTV, stu_survey_df$Happiness)
+
+## calculate the covariance of Reading time and Happniness
+cov(stu_survey_df$TimeReading, stu_survey_df$Happiness)
+
+## calculate the correlation of TV time and Happniness
+cor(stu_survey_df$TimeTV, stu_survey_df$Happiness)
+cor.test(stu_survey_df$TimeTV, stu_survey_df$Happiness)
+
+# coefficient correlation for TimeTV and Happiniess variables
+cor2<-cor(stu_survey_df$TimeTV, stu_survey_df$Happiness)
+
+## coefficient correlation for TimeTV and Happiniess variables at confidence interval 99%
+CIr(r=cor2, n = 9, level = 0.99)
+
+## calculate the correlation of Reading time and Happniness
+cor(stu_survey_df$TimeReading, stu_survey_df$Happiness)
+
+## coefficient correlation for TimeReading and Happiniess variables
+cor1<-cor(stu_survey_df$TimeReading, stu_survey_df$Happiness)
+cor.test(stu_survey_df$TimeReading, stu_survey_df$Happiness)
+
+## coefficient correlation for TimeReading and Happiniess variables at confidence interval 99%
+CIr(r=cor1, n = 9, level = 0.99)
+
+
+## calculate the correlation of Reading time and Gender
+cor(stu_survey_df$TimeReading, stu_survey_df$Gender)
+
+## coefficient correlation for TimeReading and Gender variables
+cor3<-cor(stu_survey_df$TimeReading, stu_survey_df$Gender)
+cor.test(stu_survey_df$TimeReading, stu_survey_df$Gender)
+
+## coefficient correlation for TimeReading and Gender variables at confidence interval 99%
+CIr(r=cor3, n=9, level=0.99)
+
+## calculate the correlation of Reading time and Gender
+cor(stu_survey_df$TimeTV, stu_survey_df$Gender)
+cor.test(stu_survey_df$TimeTV, stu_survey_df$Gender)
+
+## coefficient correlation for TimeTV and Gender variables
+cor4<-cor(stu_survey_df$TimeTV, stu_survey_df$Gender)
+
+## coefficient correlation for TimeTV and Gender variables at confidence interval 99%
+CIr(r=cor4, n=9, level=0.99)
+
+## calculate the correlation of TimeReading and TimeTV
+cor(stu_survey_df$TimeTV, stu_survey_df$TimeReading)
+cor.test(stu_survey_df$TimeTV, stu_survey_df$TimeReading)
+
+## coefficient correlation for TimeTV and TimeReading
+cor5<-cor(stu_survey_df$TimeTV, stu_survey_df$TimeReading)
+
+## coefficient correlation for TimeTV and TimeReading variables at confidence interval 99%
+CIr(r=cor5, n=9, level=0.99)
+
+## pearson coefficient correlation of TV time and Happiness
+cor(stu_survey_df$TimeTV, stu_survey_df$Happiness, method= "pearson")
+rP1<-cor(stu_survey_df$TimeTV, stu_survey_df$Happiness, method="pearson")
+cor.test(stu_survey_df$TimeTV, stu_survey_df$Happiness, method= "pearson")
+
+## pearson coefficient correlation of Reading time and Happiness
+cor(stu_survey_df$TimeReading, stu_survey_df$Happiness, method="pearson")
+rP2<-cor(stu_survey_df$TimeReading, stu_survey_df$Happiness, method="pearson")
+cor.test(stu_survey_df$TimeReading, stu_survey_df$Happiness, method="pearson")
+CIr(r=rP2, n=9, level=0.99)
+
+## pearson coefficient correlation of TV time and TimeReading
+cor(stu_survey_df$TimeTV, stu_survey_df$TimeReading, method="pearson")
+cor.test(stu_survey_df$TimeTV, stu_survey_df$TimeReading, method="pearson")
+rP3<-cor(stu_survey_df$TimeTV, stu_survey_df$TimeReading, method="pearson")
+cor.test(stu_survey_df$TimeTV, stu_survey_df$TimeReading, method= "pearson")
+CIr(r=rP3, n=9, level=0.99)
+
+
+## partial pearson coefficient correlation of TV time and Reading Time with 
+## a Control Variable Happiness
+cor(stu_survey_df$TimeTV, stu_survey_df$TimeReading, method="pearson")
+pcor.test(stu_survey_df$TimeTV, stu_survey_df$TimeReading, list(stu_survey_df$Happiness))
+
+## partial pearson coefficient correlation of TV time and Reading Time with 
+## a Control Variable TimeTV
+cor(stu_survey_df$TimeTV, stu_survey_df$TimeReading, method="pearson")
+pcor.test(stu_survey_df$TimeReading, stu_survey_df$Happiness, list(stu_survey_df$TimeTV))
+
+## partial pearson coefficient correlation of TV time and Happiness Time with 
+## a Control Variable TimeReading
+cor(stu_survey_df$TimeTV, stu_survey_df$TimeReading, method="pearson")
+pcor.test(stu_survey_df$TimeTV, stu_survey_df$Happiness, list(stu_survey_df$TimeReading))
+```
+
+
+Exercise 7.2 
+
+1. Covariance of the Student Survey variables are `r cov(stu_survey_df$TimeTV, stu_survey_df$Happiness)` for watching TV and happiness,
+  `r cov(stu_survey_df$TimeReading, stu_survey_df$Happiness)` for reading and happiness.
+2. I used these variables--Time spent on watching TV and Happiness, and Time spent on reading and Happiness--to see if they are correlated or they change together.
+
+Changing the measurement for the variables used in the above covariance calculation is unable
+to determine the degree to which the variables are moving together.  The reason is that covariance does not use one standardized unit of measurement.  Thus, we need to standardize the variables to calculate a correlation coefficient whose value is between -1 and +1.
+
+3. Pearson Correlation.  I chose this method even though the data set is small, there seems to be a linear dependence between two varaiables (i.e. watching TV and reading less).  I think it will yield a negative correlation.
+
+4. for (1) to (3), please refer to the above block of code for the correlation analysis including the repeated correlation test with the C.I. set at 99%.
+(4) The varialbes TimeReading and Happiness have a negative correlation while TimeTV and Happiness have a positive correlation while the Gender variable doesn't seem to have a meaningful relationship wiht neither TimeTV nor TimeReading variables.
+
+5.  There is a positive correlation coefficient `r cor(stu_survey_df$TimeTV, stu_survey_df$Happiness, method= "pearson")` between the variables TimeTV and Happniess while there is a negative correlation coefficient `r cor(stu_survey_df$TimeReading, stu_survey_df$Happiness, method="pearson")` between TimeReading and Happiness.  Also, there is a negative correlation coefficient `r cor(stu_survey_df$TimeTV, stu_survey_df$TimeReading, method="pearson")` between the variables TimeTV and TimeReading.
+
+6. There definitely seems to be a negative correllation between watching TV and reading less. Unless there is a good controlled group that read less but did something other than watching TV, it is difficult to say that watching more TV caused students to read less. 
+
+7. Partial correlation test
+  1) Happiness as a control varialbe results in `r pcor.test(stu_survey_df$TimeTV, stu_survey_df$TimeReading, list(stu_survey_df$Happiness))`
+  2) Watching TV time as a control variable results in `r pcor.test(stu_survey_df$TimeReading, stu_survey_df$Happiness, list(stu_survey_df$TimeTV))`
+  3) Reading time as a control variable results in `r pcor.test(stu_survey_df$TimeTV, stu_survey_df$Happiness, list(stu_survey_df$TimeReading))`
+  
+  Thus, introduing Reading Time as a control variable, there seems to be a positive correlation between watching TV and happiness (less so with reading time). Given that the fairly strong partial correlation coefficient from this test indicates that watching TV could cause happiness.  It is interesting to note that introducing Happiness as a control variable, there still exists a negative correlation between watching TV and reading less without being a casual relationship.
+
+
