@@ -1,0 +1,55 @@
+---
+title: "DSC520_Final_Project_Step1_Han"
+author: "Phil Han"
+date: "8/2/2021"
+output: html_document
+---
+
+For my final project, I plan on reseraching about the decreasing popularity of the sport of 
+baseball.  
+
+-Introduction
+Of all American sports, baseball which used to be called the National Pasttime is losing its popularity and fans as seen by declining attendence around the ballparks all across America.
+The game itself has gone through transformation as so-called Moneyball which is driven by data analytics has taken a prominent role in the sport.  Many teams rely on data for their baseball operations that place a heightened focus on analytics to gain advantage.  My research is interested in finding out what factors born by analytics-powered baseball operations contributed to the declining popularity of the game.
+
+-Research Questions
+  1) Strikeouts have gone up significantly in the recent years as Home Runs have increased.  What explains this strange phenomena?
+  2) Fans in the stadium want to see more actions--doubles, triples, & base stealing.  Are those     categories on a decreasing trend to explain why baseball games are boring?
+  3) Defensive shifts have appeared in almost all games around the leagues.  Have they prevented     more actions?  
+  4) What has been the trend with the shifts?  If so, what variable or category can be identified with the shifts?
+  5) What about the length of the games?  Has it been on a decreasing trend?
+  6) Are teams around the leagues scoring less or more in the recent years?
+  7) What about a string of single hits vs Home Runs?  Are more Home Runs in the recent surge linked to the lack of single hits?
+  
+-Approach
+I plan to gather some baseball datasets to see if there is a decreasing trend for the Major League Teams to hit doubles, triples, & base steals.  I will also investigate whether or not there's been an increaing trend for strikeouts while going for the fences (i.e. Home Runs).
+
+--How your approach address (fully or partially) the problem?
+If my reserach results in the confirmed case of the decreasing number of doubles, triples, & base steals, that will explain the lack of actions in the games even though the number of Home Runs may have increased.
+
+--Data
+1) Keggle Baseball Databank (https://www.kaggle.com/open-source-sports/baseball-databank)
+2) Keggle Hitters Baseball Data (https://www.kaggle.com/mathchi/hitters-baseball-data)
+3) Lahman's Baseball data on Pitching (https://www.kaggle.com/freshrenzo/lahmanbaseballdatabase?select=Pitching.csv)
+
+--Required Packages
+
+library(ggplot2)
+library(qqplotr)
+library(purrr)
+library(plyr)
+library(dplyr)
+library(readxl)
+library(lahman) --> for baseball data
+require(plyr)
+
+
+--Plots and Table Needs
+I plan to use both linear/multi regression plots as well as histograms.  As for the tables, I plan on using DT within R Markdown as well as DT package.
+
+--Questions
+I will ask when or what year began this trend of low attendance for the games and the lack of action inducing plays started.  I do not know if they are coincided or the latter started when teams started using data analytics approach to their baseball operations.  I don't know if there are datasets for those information..
+
+
+
+
