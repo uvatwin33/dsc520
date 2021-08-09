@@ -81,9 +81,9 @@ As for tables, DT within R Markdown as well as data.table package.
 ## Additional questions for the future steps
 * I am seriously considering filtering the data by year so the results do not come out skewed since the data goes way back to Year 1871.  
 
-Also, I have to figure out how to join the attendance data to the dataset in an approriate manner.  And I will probably end up further removing some of the variables that may not be needed.  
+* Also, I have to figure out how to join the attendance data to the dataset in an approriate manner.  And I will probably end up further removing some of the variables that may not be needed.  
 
-lastly, I will have to figure out how to calcute slugging % from the dataset and may consider adding it to the final dataset.
+* Lastly, I will have to figure out how to calcute slugging % from the dataset and may consider adding it to the final dataset.
 
 
 
