@@ -1,0 +1,424 @@
+---
+title: "DSC520 10.3 Final Project Part 3"
+author: "Phil Han"
+date: "8/14/2021"
+output: html_document
+---
+
+```{r baseball, include=FALSE}
+# Assignment: ASSIGNMENT 10.3
+# Name: Han, Phil
+# Date: 2021-08-07
+
+#install.packages('magrittr')
+#install.packages('psychometric')
+#install.packages('ggeasy')
+
+#install.packages("devtools")
+#devtools::install_github("renkun-ken/formattable")
+#install.packages("htmlwidgets")
+
+## Laading libraries/packages
+library(tidyverse)
+#library(dplyr)
+library(magrittr)
+library(readxl)
+library(ggplot2)
+#library(ggeasy)
+#library(psychometric)
+library(data.table)
+library(formattable)
+library(htmlwidgets)
+
+## Set the working directory to the root of your DSC 520 directory
+setwd("~/Documents/GitHub/dsc520")
+
+## Load the `data/r4ds/heights.csv` to
+batting_data <- read.csv("data/Batting.csv")
+bb_attend_data <- read_excel("data/Baseball_Attendance_Data.xlsx")
+head(batting_data)
+head(bb_attend_data)
+str(batting_data)
+
+#nrow(batting_data[is.na(batting_data$lgID) | is.na(batting_data$SF), ])
+
+#batting_data[is.na(batting_data$lgID) | is.na(batting_data$SF), ]
+
+#data<-batting_data[!(is.na(batting_data$lgID) | is.na(batting_data$SF)),]
+#nrow(data)
+
+head(batting_data)
+data <- data.frame(batting_data)
+data
+
+## Creating a new variable called X2B3B for combining extra base hits for doubles and triples
+data<- mutate(data, X2B3B = X2B + X3B) 
+data
+## Removing columns in a range(from stint to league ID)
+data1<- subset(data, select = -c(stint:lgID))
+head(data1)
+
+## Summary of the data
+summary(data1)
+data1
+
+data1_detailed <- data1 %>%
+  select(yearID, X2B, X3B, HR, SB, SO, X2B3B)
+  
+data1_detailed
+
+data1_detailed[is.na(data1_detailed)] = 0
+data1_detailed
+
+data2 <- data1_detailed %>%
+  group_by(yearID) %>%
+  summarize(count_by_year = n(),
+            Avg_X2B = mean(X2B), Avg_X3B = mean(X3B), Avg_HR = mean(HR), 
+            Avg_SB = mean(SB), Avg_SO = mean(SO), Avg_X2B3B = mean(X2B3B))
+
+# removing rows for Years down to 1903 to align the data with the attendance data
+data2 <- data2[-c(1:79),]
+
+# removing a row for 2020 data which is a shortened season with 2 mo. 
+# thus an outlier
+data2 <- data2[-c(71),]
+data2
+
+# cleaning baseball attendance data
+bb_attend_data
+bb_attend_data1 <- bb_attend_data %>% arrange(Year)
+bb_attend_data2 <- bb_attend_data1 %>% select(-('Top Team':'Low Ballpark'))
+bb_attend_data2 <- bb_attend_data2[-c(1:47),]
+bb_attend_data2
+
+colnames(bb_attend_data2)[1] <- "yearID"
+bb_attend_data2
+
+new_bb_data <- cbind(data2, bb_attend_data2) 
+#new_bb_data %>% select(-9)
+new_bb_data1<-new_bb_data %>% select(-9)
+
+
+# converting a column (Avg Attn GM) from character to numberic
+new_bb_data1
+new_bb_data1$`Attendance GAME` <- as.numeric(new_bb_data1$`Attendance GAME`)
+new_bb_data1
+
+str(new_bb_data1)
+
+
+# scatter plot with fitted values on Avg HRs
+ggplot(new_bb_data1, aes(x=yearID, y= Avg_HR)) +
+  geom_point() +
+  stat_smooth(method = "lm",
+              col = 'red',
+              se = FALSE,
+              size = 1)
+
+# scatter plot with fitted values on Avg TripLes
+ggplot(new_bb_data1, aes(x=yearID, y= Avg_X3B)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+# scatter plot with fitted values on Avg Doubles
+ggplot(new_bb_data1, aes(x=yearID, y= Avg_X2B)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+# scatter plot with fitted values on Avg Strikeouts
+ggplot(new_bb_data1, aes(x=yearID, y= Avg_SO)) +
+  geom_point() +
+  stat_smooth(method = "lm",
+      col = 'red',
+      se = FALSE,
+      size = 1)
+
+str(new_bb_data1)
+colnames(new_bb_data1)[9] <- "Total_Attn" 
+colnames(new_bb_data1)[12] <- "Avg_TM_Attn"
+colnames(new_bb_data1)[13] <- "Avg_Attn_GM"
+#new_bb_data1 <- data.frame(Avg_Attn_GM, stringsAsFactors = FALSE)
+
+# scatter plot with fitted values on Avg Triples vs Attendance
+ggplot(new_bb_data1, aes(x=Avg_X3B, y= Avg_TM_Attn)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+# scatter plot with fitted values on Avg Doubles vs Attendance
+ggplot(new_bb_data1, aes(x=Avg_X2B, y= Avg_TM_Attn)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+# scatter plot with fitted values on Avg Strikeouts vs Attendance
+ggplot(new_bb_data1, aes(x=Avg_SO, y= Avg_TM_Attn)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+# scatter plot with fitted values on Avg HR vs Attendance
+ggplot(new_bb_data1, aes(x=Avg_HR, y= Avg_TM_Attn)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+# scatter plot with fitted values on Avg HR vs Total Attendance
+ggplot(new_bb_data1, aes(x=Avg_HR, y= Total_Attn)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+str(new_bb_data1)
+## Computing correlation coefficients for
+## Avg 2B vs. Avg Team Attendance
+cor(new_bb_data1$Avg_HR, new_bb_data1$Avg_Attn_GM)
+
+## Computing correlation coefficients for Avg SO vs Avg Team Attendance
+cor(new_bb_data1$Avg_SO, new_bb_data1$Avg_Attn_GM)
+
+## Computing correlation coefficients for Avg Doubles vs Avg Team Attendance
+cor(new_bb_data1$Avg_X2B, new_bb_data1$Avg_Attn_GM)
+r<- cor(new_bb_data1$Avg_X2B, new_bb_data1$Avg_Attn_GM)
+#CIr(r, n=6, level=.99)
+
+## Computing correlation coefficients for Avg Triples vs Avg Team Attendance
+cor(new_bb_data1$Avg_X3B, new_bb_data1$Avg_Attn_GM)
+r<- cor(new_bb_data1$Avg_X3B, new_bb_data1$Avg_Attn_GM)
+#CIr(r, n=6, level=.99)
+
+## Computing correlation coefficients for Avg Stolen Bases vs Avg Team Attendance
+cor(new_bb_data1$Avg_SB, new_bb_data1$Avg_Attn_GM)
+
+## Building a regression model with such variables as Avg X2B, Avg X3B, Avg HR, & etc. 
+new_bb_data1
+bb_data_lm<- lm(Avg_Attn_GM ~ Avg_X2B + Avg_X3B + Avg_HR + Avg_SB + Avg_SO,  data=new_bb_data1)
+summary(bb_data_lm)
+
+
+bb_data_df<- data.frame(Avg_Attn_GM = predict(bb_data_lm, new_bb_data1), Avg_X2B=new_bb_data1$Avg_X2B,
+              Avg_X3B=new_bb_data1$Avg_X3B, Avg_HR=new_bb_data1$Avg_HR, Avg_SB=new_bb_data1$Avg_SB,
+              Avg_SO=new_bb_data1$Avg_SO)
+
+
+bb_data_df
+
+predict(bb_data_lm, bb_data_df, interval = "confidence")
+
+## Scatter plot graph for a regression model predicting avg. team attendance 
+## with a Avg 2B variable
+ggplot(data = bb_data_df, aes(y = Avg_Attn_GM, x = Avg_X2B)) +
+  xlab("Avg. Doubles Hit") +
+  ylab("Avg. Attendance Per Game") +
+  geom_point(color = 'blue') +
+  geom_smooth(formula = 'y ~ x', method = "lm", color = 'red')
+
+## Scatter plot graph for a regression model predicting avg. team attendance 
+## with a Avg 3B variable
+ggplot(data = bb_data_df, aes(y = Avg_Attn_GM, x = Avg_X3B)) +
+  xlab("Avg. Triples Hit") +
+  ylab("Avg. Attendance Per Game") +
+  geom_point(color = 'blue') +
+  geom_smooth(method = "lm", color = 'red')
+
+## Scatter plot graph for a regression model predicting avg. team attendance 
+## with a Avg 3B variable
+ggplot(data = bb_data_df, aes(y = Avg_Attn_GM, x = Avg_SB)) +
+  xlab("Avg. Stolen Base") +
+  ylab("Avg. Attendance Per Game") +
+  geom_point(color = 'blue') +
+  geom_smooth(formula = 'y ~ x', method = "lm", color = 'red')
+
+## Scatter plot graph for a regression model predicting avg. team attendance 
+## with a Avg Stolen Base variable
+ggplot(data = bb_data_df, aes(y = Avg_Attn_GM, x = Avg_SB)) +
+  geom_point(color = 'blue') +
+  geom_smooth(formula = 'y ~ x', method = "lm", color = 'red')
+
+## Building a regression model predicting strikeouts with such variables as Avg X2B, 
+## Avg X3B, Avg HR, & etc. 
+
+new_bb_data1
+bb_so_data_lm<- lm(Avg_SO ~ Avg_X2B + Avg_X3B + Avg_HR + Avg_SB,  data=new_bb_data1)
+summary(bb_so_data_lm)
+
+
+bb_so_data_df<- data.frame(Avg_SO = predict(bb_data_lm, new_bb_data1), Avg_X2B=new_bb_data1$Avg_X2B,
+                        Avg_X3B=new_bb_data1$Avg_X3B, Avg_HR=new_bb_data1$Avg_HR, Avg_SB=new_bb_data1$Avg_SB,
+                        Avg_SO=new_bb_data1$Avg_SO)
+
+ggplot(data = bb_so_data_df, aes(y = Avg_SO, x = Avg_X2B)) +
+  xlab("Avg. Doubles Hit") +
+  ylab("Avg. Strikeouts") +
+  ggtitle("Plot of Avg. Ks versus Avg. 2Bs") +
+  geom_point(color = 'blue') +
+  geom_smooth(method = "lm", color = 'red')
+
+
+ggplot(data = bb_so_data_df, aes(y = Avg_SO, x = Avg_X3B)) +
+  xlab("Avg. Triples Hit") +
+  ylab("Avg. Strikeouts") +
+  ggtitle("Plot of Avg. Ks versus Avg. 3Bs") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_point(color = 'blue') +
+  geom_smooth(method = "lm", color = 'red')
+
+
+ggplot(data = bb_so_data_df, aes(y = Avg_SO, x = Avg_HR)) +
+  xlab("Avg. HRs") +
+  ylab("Avg. Strikeouts") +
+  ggtitle("Plot of Avg. Ks versus Avg. HRs") +
+  geom_point(color = 'blue') +
+  geom_smooth(method = "lm", color = 'red')
+
+ggplot(data = bb_so_data_df, aes(y = Avg_SO, x = Avg_SB)) +
+  xlab("Avg. HRs") +
+  ylab("Avg. Strikeouts") +
+  ggtitle("Plot of Avg. Ks versus Avg. SBs") +
+  geom_point(color = 'blue') +
+  geom_smooth(method = "lm", color = 'red')
+```
+
+
+**For the Love of Games**
+
+
+
+* Introduction
+
+In the summer, there's no other sport like baseball in American sports. Fans go to their team's ball parks or stadiums to watch their favorite teams and players play while eating hot dogs and cold drinks.  No wonder it is called National Pastime.  The game filled with so many memorable moments and legends, like Babe Ruth and Ted Williams, have charmed the fans young and old.  Once October arrives, the romance of the games in the summer gives way to an unscripted drama of Fall Classic games in the post season. 
+
+
+* Issues Addressed
+
+However, in the recent years, baseball fans have been losing interest in the games and found baseball games to be either too long or boring.  The attendance around the leagues has been steadily declining while fast-pace games like football and basketball have thrived in terms of popularity.  
+
+Theo Epstein, a former president of baseball operations for the Boston Red Sox and Chicago Cubs, recently said that he regretted that analytics used in the game has produced unintended consequences--less actions on the field (Svrluga, 2021).   
+
+
+* How Issues Are Addressed
+
+This research paper seeks to find some of the main issues that might have contributed to the declining attendance for the games.  It turned out that fans do not get to watch much action and athletic plays on the field when watching baseball games.  Namely, there has been a decreasing number of doubles, triples, and stolen base produced on bases which all create more actions around the diamond.   
+
+I investigated whether or not there's been a historical declining pattern with the above three categories.  Specifically, I looked to see if the correlation among the attendance figures and the aforementioned three categories existed.  If we can see the correlation, it will provide a clue as to how to fix the current problems that baseball is facing, if not at least help improve the game by introducing more action-inducing elements.
+
+
+* Analysis
+
+I looked at the over 100 years worth of the data on batting (doubles & triples) & stolen bases from _Sean Lahman's Baseball Archive_.  I also looked at the attendance data from _The Baseball Cube_.  Because there's an expansion of teams and the total number of teams vary over the years, I used the mean of the categories.  And also, because the average attendance per game data only existed starting in 1950, I limited the size of the data to about 70 years (1950 - 2019).  I did not use the data from 2020 since no fans, except for the postseason, were allowed during the pandemic shortened season.
+
+```{r baseball data, echo=FALSE}
+formattable(new_bb_data1)
+```
+
+First, I looked at the relationship between doubles hit (2B) and the average attendance per game(AAPG) based on the data I extracted. As you see 1) Scatter Plot with Regression Model below there is a positive correlation. 
+
+```{r Avg_X2B, echo=FALSE}
+ggplot(data = bb_data_df, aes(y = Avg_Attn_GM, x = Avg_X2B)) +
+  xlab("Avg. Doubles Hit") +
+  ylab("Avg. Attendance Per Game") +
+  ggtitle("Plot of Avg. 2B versus Avg. Attedance Per Game") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_point(color = 'blue') +
+  geom_smooth(formula = 'y ~ x', method = "lm", color = 'red')
+
+```
+
+
+
+Next, an almost perfect correlation exists between triples hit (3B) and AAPG.  See the same Scatter Plot with a regression model for 3B predicting the attendance.  
+
+
+
+```{r, echo=FALSE}
+ggplot(data = bb_data_df, aes(y = Avg_Attn_GM, x = Avg_X3B)) +
+  ggtitle("Plot of Avg. 3B vs Avg. Attendance Per Game") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab("Avg. Triples Hit") +
+  ylab("Avg. Attendance Per Game") +
+  geom_point(color = 'blue') +
+  geom_smooth(formula = 'y ~ x', method = "lm", color = 'red')
+  
+```
+
+
+
+A strong negative correlation of `r cor(new_bb_data1$Avg_X3B, new_bb_data1$Avg_Attn_GM)` shows not only that there is a strong relationship between the variables 3B and AAPG but also there is a close-to-perfect relationship (-1).
+
+
+When looking at the relationship between the variables stolen base and AAPG, to my surprise, there doesn't appear to be as a strong correlation as 2B and 3B versus AAPG.
+
+```{r, echo=FALSE}
+ggplot(data = bb_data_df, aes(y = Avg_Attn_GM, x = Avg_SB)) +
+  xlab("Avg. Stolen Base") +
+  ylab("Avg. Attendance Per Game") +
+  ggtitle("Plot of Avg. Stolen Base vs Avg. Attendance Per Game") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_point(color = 'blue') +
+  geom_smooth(formula = 'y ~ x', method = "lm", color = 'red')
+```
+
+
+* Implications
+
+Due to advanced analytics employed by the teams, defensive shifts have been used to prevent not only singles but also possible extra base hits have effectively reduced actions around the diamond.  Also, the pitchers have used foreign substances to better grip the balls to increase spin rate and thus increase chances of strikeouts.  In the meanwhile, hitters have focused on a launch angle to hit for home runs more than ever.  And these two factors have led to a proliferation of more strikeouts, thus further reducing actions on the field.
+
+As the above findings indicate, it is true that there is a correlation between extra base hits (i.e. doubles and triples) and the attendance per game by the fans.  Extra base hits and even supposedly stolen bases (less so than the former) do produce action driven events at the games.  
+
+* Additional Insights Gained 
+
+I made another model--a multiple regression model for strikeouts using extra base hit variables. Below is a summary data for the model to predict average strikeouts using all
+batting related variables.  
+
+```{r, echo=FALSE}
+summary(bb_so_data_lm)
+
+ggplot(data = bb_so_data_df, aes(y = Avg_SO, x = Avg_X2B)) +
+  xlab("Avg. Doubles Hit") +
+  ylab("Avg. Strikeouts") +
+  ggtitle("Plot of Avg. Ks versus Avg. 2Bs") +
+  geom_point(color = 'blue') +
+  geom_smooth(formula = 'y ~ x', method = "lm", color = 'red')
+
+
+ggplot(data = bb_so_data_df, aes(y = Avg_SO, x = Avg_X3B)) +
+  xlab("Avg. Triples Hit") +
+  ylab("Avg. Strikeouts") +
+  ggtitle("Plot of Avg. Ks versus Avg. 3Bs") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_point(color = 'blue') +
+  geom_smooth(formula = 'y ~ x', method = "lm", color = 'red')
+
+
+ggplot(data = bb_so_data_df, aes(y = Avg_SO, x = Avg_HR)) +
+  xlab("Avg. HRs") +
+  ylab("Avg. Strikeouts") +
+  ggtitle("Plot of Avg. Ks versus Avg. HRs") +
+  geom_point(color = 'blue') +
+  geom_smooth(formula = 'y ~ x', method = "lm", color = 'red')
+
+ggplot(data = bb_so_data_df, aes(y = Avg_SO, x = Avg_SB)) +
+  xlab("Avg. Stolen Bases") +
+  ylab("Avg. Strikeouts") +
+  ggtitle("Plot of Avg. Ks versus Avg. SBs") +
+  geom_point(color = 'blue') +
+  geom_smooth(formula = 'y ~ x', method = "lm", color = 'red')
+
+```
+
+As P-values for the extra base hit variables such as doubles, triples, and home runs (or even a non-extra base hit variable like stolen bases) show, there is a clear relationship (i.e. less than 0.05) between the average strikeouts and the extra base hits that create actionable events on the field.  Thus, the main implication of this researach is that Major League Baseball will need to tweak rules to lower strikeout rates and potentially prohibit defensive shifts.
+
+* Limitations
+
+One of the things that my analysis does not discuss is the category called slugging percentage (SLG), which represents the total number of bases a player records per at-bat.  The formula for SLG is (1B + 2Bx2 + 3Bx3 _ HRx4)/AB where 1B stands for a single and AB stands for At-bat.  Also, On base percentage (OBP) could have been factored into my analysis since OBP explains how hitters have avoided making an out by reaching base per plate appearance.  Both metrics essentially measure how many times, or successfully, a hitter reaches base so the more players reach base, the more action-driven events may occur around the diamond.  Including these categories may reveal even more insights pertaining to improving the game with entertaining and exciting actions.
+
+* Conclusion
+
+The game of baseball has evolved since the introduction of advanced analytics to help each team get advantages by unlocking hidden areas of the games through analyzing statistics of the players.  However, it has brought unintended consequences of increasing strikeouts at a historically high rate while decreasing extra base hits that bring more action-filled events to the game.  Thus, Major League Baseball needs to focus on how it can reduce the strikeout rate (i.e. a recent rule change to ban foreign substances used by pitchers) and implement and tweak rules to allow more extra base hits that are more inviting and exciting for the current and future fans.
+
+
+
+* References:
+
+Lahman, S. (n.d.).  _Baseball Arhive_.  SeanLahman.com.  http://www.seanlahman.com/baseball-archive/ 
+
+The Baseball Cube (n.d.).  _MLB Attendance History_.  thebaseballcube.com.  http://www.thebaseballcube.com/topics/attendance/
+
+Svrluga, B. (2021, July 15).  _Baseball has lost its balance. Theo Epstein has some thoughts on restoring it_.  washingtonpost.com.  https://www.washingtonpost.com/sports/2021/07/15/theo-epstein-fixes-baseball/
+
+
+
